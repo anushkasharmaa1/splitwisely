@@ -68,7 +68,7 @@ export default function CreateGroupPage() {
     // Handle group creation logic here
     console.log({ groupName, category, members });
     // Navigate to groups page or newly created group
-    router.push('/group');
+    router.push('/groups');
   };
 
   return (
@@ -96,7 +96,7 @@ export default function CreateGroupPage() {
                 <a href="/expenses" className="text-gray-400 hover:text-white transition">
                   Expenses
                 </a>
-                <a href="/group" className="text-blue-500 font-medium">
+                <a href="/groups" className="text-blue-500 font-medium">
                   Groups
                 </a>
               </nav>
@@ -144,7 +144,7 @@ export default function CreateGroupPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <button
-            onClick={() => router.push('/group')}
+            onClick={() => router.push('/groups')}
             className="flex items-center gap-2 text-gray-400 hover:text-white transition mb-4"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
