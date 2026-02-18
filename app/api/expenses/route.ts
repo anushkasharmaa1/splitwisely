@@ -2,9 +2,12 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+const globalForPrisma = global as unknown as { prisma?: PrismaClient };
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
 
 export async function GET() {
   try {
@@ -16,19 +19,19 @@ export async function GET() {
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
+
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const memberships = await prisma.groupMember.findMany({
-      where: { userId: user.id },
-      select: { groupId: true },
-    });
-
-    const groupIds = memberships.map(m => m.groupId);
-
     const expenses = await prisma.expense.findMany({
-      where: { groupId: { in: groupIds } },
+      where: {
+        group: {
+          members: {
+            some: { userId: user.id },
+          },
+        },
+      },
       include: {
         paidBy: true,
         group: true,
@@ -37,64 +40,74 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    const formattedExpenses = expenses.map(expense => {
-      const userSplit = expense.splits.find(
-        split => split.userId === user.id
-      );
-
-      const isUserPayer = expense.paidById === user.id;
-
-      // ✅ Expense-level settlement
-      const isSettled = expense.splits.every(
-        split => split.settled === true || split.amount === 0
-      );
-
-      // 🟢 IMPORTANT FIX:
-      // Once settled, balances must be zero
-      if (isSettled) {
-        return {
-          id: expense.id,
-          description: expense.description,
-          amount: expense.amount,
-          category: expense.category,
-          createdAt: expense.createdAt,
-          paidBy: expense.paidBy,
-          group: expense.group,
-          userShare: userSplit?.amount || 0,
-          userOwes: 0,
-          userLent: 0,
-          settled: true,
-        };
-      }
-
-      // Normal (pending) calculation
-      const userShare = userSplit?.amount || 0;
-      const paidByUser = isUserPayer ? expense.amount : 0;
-      const balance = paidByUser - userShare;
-
-      return {
-        id: expense.id,
-        description: expense.description,
-        amount: expense.amount,
-        category: expense.category,
-        createdAt: expense.createdAt,
-        paidBy: expense.paidBy,
-        group: expense.group,
-        userShare,
-        userOwes: balance < 0 ? Math.abs(balance) : 0,
-        userLent: balance > 0 ? balance : 0,
-        settled: false,
-      };
-    });
-
-    return NextResponse.json({
-      success: true,
-      expenses: formattedExpenses,
-    });
-  } catch (error: any) {
-    console.error('Error fetching expenses:', error);
+    return NextResponse.json({ expenses });
+  } catch (error) {
+    console.error(error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch expenses' },
+      { error: 'Failed to fetch expenses' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const body = await req.json();
+    const { description, amount, category, groupId } = body;
+
+    if (!description || !amount || !groupId) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      include: { members: true },
+    });
+
+    if (!group) {
+      return NextResponse.json({ error: 'Group not found' }, { status: 404 });
+    }
+
+    const splitAmount = amount / group.members.length;
+
+    const expense = await prisma.expense.create({
+      data: {
+        description,
+        amount,
+        category,
+        groupId,
+        paidById: user.id,
+        splits: {
+          create: group.members.map(member => ({
+            userId: member.userId,
+            amount: splitAmount,
+            settled: false,
+          })),
+        },
+      },
+    });
+
+    return NextResponse.json({ success: true, expense });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: 'Failed to create expense' },
       { status: 500 }
     );
   }
