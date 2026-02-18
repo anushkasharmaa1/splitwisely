@@ -9,6 +9,9 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
+/* =========================
+   GET – fetch expenses
+========================= */
 export async function GET() {
   try {
     const { userId } = await auth();
@@ -41,8 +44,8 @@ export async function GET() {
     });
 
     return NextResponse.json({ expenses });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { error: 'Failed to fetch expenses' },
       { status: 500 }
@@ -50,6 +53,9 @@ export async function GET() {
   }
 }
 
+/* =========================
+   POST – create expense
+========================= */
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
@@ -80,8 +86,11 @@ export async function POST(req: Request) {
       include: { members: true },
     });
 
-    if (!group) {
-      return NextResponse.json({ error: 'Group not found' }, { status: 404 });
+    if (!group || group.members.length === 0) {
+      return NextResponse.json(
+        { error: 'Invalid group' },
+        { status: 400 }
+      );
     }
 
     const splitAmount = amount / group.members.length;
@@ -94,18 +103,22 @@ export async function POST(req: Request) {
         groupId,
         paidById: user.id,
         splits: {
-          create: group.members.map(member => ({
-            userId: member.userId,
+          create: group.members.map(m => ({
+            userId: m.userId,
             amount: splitAmount,
-            settled: false,
+            settled: m.userId === user.id,
           })),
         },
       },
     });
 
-    return NextResponse.json({ success: true, expense });
-  } catch (error) {
-    console.error(error);
+    // 🔴 THIS RESPONSE WAS MISSING EARLIER
+    return NextResponse.json({
+      success: true,
+      expense,
+    });
+  } catch (err) {
+    console.error('CREATE EXPENSE ERROR:', err);
     return NextResponse.json(
       { error: 'Failed to create expense' },
       { status: 500 }
