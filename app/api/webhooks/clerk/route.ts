@@ -10,32 +10,30 @@ export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
-    throw new Error('Please add CLERK_WEBHOOK_SECRET to .env.local');
+    throw new Error('Please add CLERK_WEBHOOK_SECRET to environment variables');
   }
 
-  // Get the headers
-  const headerPayload = headers();
+  // ✅ FIX: headers() is async in Next.js 16
+  const headerPayload = await headers();
+
   const svix_id = headerPayload.get('svix-id');
   const svix_timestamp = headerPayload.get('svix-timestamp');
   const svix_signature = headerPayload.get('svix-signature');
 
-  // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response('Error occured -- no svix headers', {
+    return new Response('Error occurred -- missing svix headers', {
       status: 400,
     });
   }
 
-  // Get the body
+  // Get request body
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
-  // Create a new Svix instance with your secret.
+  // Verify webhook
   const wh = new Webhook(WEBHOOK_SECRET);
-
   let evt: WebhookEvent;
 
-  // Verify the payload with the headers
   try {
     evt = wh.verify(body, {
       'svix-id': svix_id,
@@ -43,19 +41,16 @@ export async function POST(req: Request) {
       'svix-signature': svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error('Error verifying webhook:', err);
-    return new Response('Error occured', {
-      status: 400,
-    });
+    console.error('❌ Error verifying webhook:', err);
+    return new Response('Webhook verification failed', { status: 400 });
   }
 
-  // Handle the webhook
   const eventType = evt.type;
 
+  // USER CREATED
   if (eventType === 'user.created') {
     const { id, email_addresses, first_name, last_name, image_url } = evt.data;
 
-    // Create user in database
     try {
       await prisma.user.create({
         data: {
@@ -68,15 +63,15 @@ export async function POST(req: Request) {
 
       console.log('✅ User created in database:', id);
     } catch (error) {
-      console.error('Error creating user:', error);
+      console.error('❌ Error creating user:', error);
       return new Response('Error creating user', { status: 500 });
     }
   }
 
+  // USER UPDATED
   if (eventType === 'user.updated') {
     const { id, email_addresses, first_name, last_name, image_url } = evt.data;
 
-    // Update user in database
     try {
       await prisma.user.update({
         where: { clerkId: id },
@@ -89,15 +84,15 @@ export async function POST(req: Request) {
 
       console.log('✅ User updated in database:', id);
     } catch (error) {
-      console.error('Error updating user:', error);
+      console.error('❌ Error updating user:', error);
       return new Response('Error updating user', { status: 500 });
     }
   }
 
+  // USER DELETED
   if (eventType === 'user.deleted') {
     const { id } = evt.data;
 
-    // Delete user from database
     try {
       await prisma.user.delete({
         where: { clerkId: id },
@@ -105,7 +100,7 @@ export async function POST(req: Request) {
 
       console.log('✅ User deleted from database:', id);
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('❌ Error deleting user:', error);
       return new Response('Error deleting user', { status: 500 });
     }
   }
