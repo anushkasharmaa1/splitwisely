@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-import Navigation from "@/components/Navigation";
-import Banner from "@/components/Banner";
-import FeatureCard from "@/components/FeatureCard";
-
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#0a1628] text-white">
@@ -27,13 +23,7 @@ export default function LandingPage() {
               <a href="#features" className="text-gray-300 hover:text-white transition">
                 Features
               </a>
-              <a href="#pricing" className="text-gray-300 hover:text-white transition">
-                Pricing
-              </a>
-              <a href="#about" className="text-gray-300 hover:text-white transition">
-                About
-              </a>
-              <Link href="/sign-in" className="text-gray-300 hover:text-white transition">
+              <Link href="/dashboard" className="text-gray-300 hover:text-white transition">
                 Login
               </Link>
               <Link
@@ -74,20 +64,6 @@ export default function LandingPage() {
                 >
                   Get Started for Free
                 </Link>
-                <Link
-                  href="/expenses/history"
-                  className="px-8 py-4 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition"
-                >
-                  View Demo
-                </Link>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-[#0a1628]"></div>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-[#0a1628]"></div>
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-[#0a1628]"></div>
-                </div>
-                <p className="text-sm text-gray-500">Joined by 10,000+ roommates worldwide</p>
               </div>
             </div>
 
@@ -126,7 +102,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-[#0d1a2d]">
+      <section id="features" className="py-20 bg-[#0d1726]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Everything you need to manage group finances</h2>
@@ -135,56 +111,70 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {/* Feature 1 */}
+            <div className="bg-[#1a2738] rounded-2xl p-8 border border-gray-800/50">
+              <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                 </svg>
-              }
-              title="Easy Group Setup"
-              description="Create groups for trips, households, or dinners in seconds. Add members via a simple link or QR code."
-            />
-            <FeatureCard
-              icon={
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-white">Easy Group Setup</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Create groups for trips, households, or dinners in seconds. Add members via a simple link or QR
+                code.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-[#1a2738] rounded-2xl p-8 border border-gray-800/50">
+              <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                 </svg>
-              }
-              title="Smart Splitting"
-              description="Whether it's equal splits, percentages, or specific amounts, our engine handles the complex math for you."
-            />
-            <FeatureCard
-              icon={
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-white">Smart Splitting</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Whether it's equal splits, percentages, or specific amounts, our engine handles the complex math
+                for you.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-[#1a2738] rounded-2xl p-8 border border-gray-800/50">
+              <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6">
                 <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
                 </svg>
-              }
-              title="Instant Activity Logs"
-              description="Stay in the loop with a real-time feed of every expense added, edited, or settled up by anyone in the group."
-            />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-white">Instant Activity Logs</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Stay in the loop with a real-time feed of every expense added, edited, or settled up by anyone in
+                the group.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-12 text-center">
-            <h2 className="text-4xl font-bold mb-4">Ready to simplify your shared expenses?</h2>
-            <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
+      <section className="py-20 bg-[#0a1628]">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="bg-[#1a2738]/60 rounded-3xl p-12 text-center border border-gray-700/30">
+            <h2 className="text-4xl font-bold mb-4 text-white">Ready to simplify your shared expenses?</h2>
+            <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
               Join thousands of users who trust Splitwisely for stress-free splitting and drama-free living.
             </p>
             <div className="flex items-center justify-center gap-4">
               <Link
                 href="/groups/new"
-                className="px-8 py-4 bg-white text-blue-600 hover:bg-gray-100 rounded-lg font-semibold transition"
+                className="px-8 py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition shadow-lg"
               >
                 Get Started Now
               </Link>
               <Link
                 href="#features"
-                className="px-8 py-4 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition"
+                className="px-8 py-3.5 bg-transparent hover:bg-gray-700/30 text-white rounded-lg font-semibold transition border border-gray-600/50"
               >
                 Learn More
               </Link>
@@ -194,7 +184,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-12">
+      <footer className="border-t border-gray-800 py-12 bg-[#0d1726]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             {/* Brand */}
@@ -227,7 +217,7 @@ export default function LandingPage() {
                   </a>
                 </li>
                 <li>
-                  <a href="#pricing" className="hover:text-white transition">
+                  <a href="#" className="hover:text-white transition">
                     Pricing
                   </a>
                 </li>
@@ -298,3 +288,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

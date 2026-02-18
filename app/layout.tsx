@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ClerkProvider } from '@clerk/nextjs';
-import { Toaster } from '@/components/ui/sonner';
+import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,25 +15,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Splitwisely – Split expenses without stress",
-  description: "Split expenses with friends and roommates. Track balances, settle up, and manage group finances easily.",
+  title: "Splitwisely | Split expenses without stress",
+  description:
+    "Split expenses with friends and roommates. Track balances, settle up, and manage group finances effortlessly.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <ClerkProvider>
-      <html lang="en">
-      <body
-  suppressHydrationWarning
-  className={`${geistSans.variable} ${geistMono.variable} antialiased`}
->
-  {children}
-  <Toaster />
-</body>
+      <html lang="en" className="dark">
+        <body
+          suppressHydrationWarning
+          className={`
+            ${geistSans.variable} 
+            ${geistMono.variable} 
+            antialiased 
+            min-h-screen
+          `}
+        >
+          {children}
+          <Toaster />
+        </body>
       </html>
     </ClerkProvider>
   );

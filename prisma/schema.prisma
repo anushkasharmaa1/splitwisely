@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model (synced with Clerk)
+model User {
+  id            String    @id @default(cuid())
+  clerkId       String    @unique
+  email         String    @unique
+  name          String?
+  imageUrl      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  groupMembers  GroupMember[]
+  expenses      ExpenseSplit[]
+  paidExpenses  Expense[]     @relation("PaidBy")
+  settlements   Settlement[]  @relation("SettlementsFrom")
+  receivedSettlements Settlement[] @relation("SettlementsTo")
+  
+  @@map("users")
+}
+
+// Group model
+model Group {
+  id          String    @id @default(cuid())
+  name        String
+  type        String    // Trip, Home, Food, Other
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  members     GroupMember[]
+  expenses    Expense[]
+  
+  @@map("groups")
+}
+
+// Group membership
+model GroupMember {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String
+  role      String   @default("member") // admin, member
+  joinedAt  DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, groupId])
+  @@map("group_members")
+}
+
+// Expense model
+model Expense {
+  id          String    @id @default(cuid())
+  description String
+  amount      Float
+  category    String    // Food, Travel, Housing, Transport, Shopping, Other
+  groupId     String
+  paidById    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  group       Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  paidBy      User      @relation("PaidBy", fields: [paidById], references: [id])
+  splits      ExpenseSplit[]
+  
+  @@map("expenses")
+}
+
+// Expense split (how expense is divided)
+model ExpenseSplit {
+  id         String   @id @default(cuid())
+  expenseId  String
+  userId     String
+  amount     Float
+  settled    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  
+  // Relations
+  expense    Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+  
+  @@map("expense_splits")
+}
+
+// Settlement (when people settle up)
+model Settlement {
+  id         String   @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  amount     Float
+  groupId    String?
+  settledAt  DateTime @default(now())
+  
+  // Relations
+  fromUser   User     @relation("SettlementsFrom", fields: [fromUserId], references: [id])
+  toUser     User     @relation("SettlementsTo", fields: [toUserId], references: [id])
+  
+  @@map("settlements")
+}
