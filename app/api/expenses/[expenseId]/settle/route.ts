@@ -10,11 +10,10 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export async function POST(
-  _req: Request,
-  { params }: { params: { expenseId: string } }
-) {
-  try {
-    const { expenseId } = params;
+    _req: Request,
+    { params }: { params: Promise<{ expenseId: string }> }
+  ) {
+    const { expenseId } = await params;
 
     const { userId } = await auth();
     if (!userId) {
