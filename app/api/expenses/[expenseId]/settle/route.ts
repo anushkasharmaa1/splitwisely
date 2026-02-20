@@ -8,16 +8,16 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export async function POST(
   _req: NextRequest,
-  context: { params: Promise<{ expenseId: string }> }
+  context: any
 ) {
   try {
-    const { expenseId } = await context.params;
+    const expenseId = context.params.expenseId as string;
 
     if (!expenseId) {
       return NextResponse.json({ error: 'Expense ID missing' }, { status: 400 });
     }
 
-    const { userId } = await auth();
+    const { userId } = auth();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -61,11 +61,13 @@ export async function POST(
   } catch (error: any) {
     console.error('Error settling expense:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to settle expense' },
+      { error: 'Failed to settle expense' },
       { status: 500 }
     );
   }
 }
+
+
 
 
 
