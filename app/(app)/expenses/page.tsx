@@ -6,7 +6,7 @@ import Link from 'next/link';
 type Expense = {
   id: string;
   description: string;
-  amount: number;
+  amount: number | null;
   category: string;
   createdAt: string;
   paidBy: {
@@ -18,9 +18,9 @@ type Expense = {
     id: string;
     name: string;
   };
-  userShare: number;
-  userOwes: number;
-  userLent: number;
+  userShare: number | null;
+  userOwes: number | null;
+  userLent: number | null;
   settled: boolean;
 };
 
@@ -43,7 +43,7 @@ export default function AllExpensesPage() {
         throw new Error(data.error || 'Failed to fetch expenses');
       }
 
-      setExpenses(data.expenses);
+      setExpenses(data.expenses || []);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -51,7 +51,6 @@ export default function AllExpensesPage() {
     }
   };
 
-  // ✅ Settle expense
   const settleExpense = async (expenseId: string) => {
     try {
       const response = await fetch(`/api/expenses/${expenseId}/settle`, {
@@ -59,6 +58,7 @@ export default function AllExpensesPage() {
       });
 
       const data = await response.json();
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to settle expense');
       }
@@ -69,7 +69,6 @@ export default function AllExpensesPage() {
     }
   };
 
-  // 🗑️ Delete expense
   const deleteExpense = async (expenseId: string) => {
     const confirmed = confirm('Delete this expense?');
     if (!confirmed) return;
@@ -80,6 +79,7 @@ export default function AllExpensesPage() {
       });
 
       const data = await response.json();
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to delete expense');
       }
@@ -92,12 +92,18 @@ export default function AllExpensesPage() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'Food': return '🍔';
-      case 'Travel': return '✈️';
-      case 'Housing': return '🏠';
-      case 'Transport': return '🚗';
-      case 'Shopping': return '🛍️';
-      default: return '📌';
+      case 'Food':
+        return '🍔';
+      case 'Travel':
+        return '✈️';
+      case 'Housing':
+        return '🏠';
+      case 'Transport':
+        return '🚗';
+      case 'Shopping':
+        return '🛍️';
+      default:
+        return '📌';
     }
   };
 
@@ -109,6 +115,10 @@ export default function AllExpensesPage() {
       year: 'numeric',
     });
   };
+
+  // ✅ SAFE formatter (prevents toFixed crash)
+  const safeAmount = (value: number | null | undefined) =>
+    Number(value ?? 0).toFixed(2);
 
   const filteredExpenses = expenses.filter(expense => {
     if (filter === 'All') return true;
@@ -190,17 +200,17 @@ export default function AllExpensesPage() {
                     </div>
 
                     <div className="mt-2 text-sm">
-                      {expense.userLent > 0 ? (
+                      {expense.userLent && expense.userLent > 0 ? (
                         <span className="text-green-400">
-                          You lent +₹{expense.userLent.toFixed(2)}
+                          You lent +₹{safeAmount(expense.userLent)}
                         </span>
-                      ) : expense.userOwes > 0 ? (
+                      ) : expense.userOwes && expense.userOwes > 0 ? (
                         <span className="text-red-400">
-                          You owe ₹{expense.userOwes.toFixed(2)}
+                          You owe ₹{safeAmount(expense.userOwes)}
                         </span>
                       ) : (
                         <span className="text-gray-400">
-                          Your share: ₹{expense.userShare.toFixed(2)}
+                          Your share: ₹{safeAmount(expense.userShare)}
                         </span>
                       )}
                     </div>
@@ -209,7 +219,7 @@ export default function AllExpensesPage() {
 
                 <div className="text-right">
                   <div className="text-xl font-semibold">
-                    ₹{expense.amount.toFixed(2)}
+                    ₹{safeAmount(expense.amount)}
                   </div>
 
                   <div className="flex items-center gap-2 justify-end mt-1">
@@ -249,7 +259,3 @@ export default function AllExpensesPage() {
     </div>
   );
 }
-
-
-
-
