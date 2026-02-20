@@ -3,7 +3,7 @@
 Splitwisely is a full-stack expense splitting web application inspired by Splitwise.  
 It helps users manage shared expenses within groups, automatically calculate balances, and settle dues efficiently.
 
-🔗 **Live Demo:** https://your-vercel-app.vercel.app
+🔗 **Live Demo:** https://[your-vercel-app.vercel.app](https://splitwisely-beige.vercel.app/)
 
 ---
 
