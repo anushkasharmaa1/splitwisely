@@ -1,21 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+const prisma = new PrismaClient();
 
 export async function POST(
-  _req: NextRequest,
-  context: any
+  _req: Request,
+  { params }: { params: { expenseId: string } }
 ) {
   try {
-    const expenseId = context.params.expenseId as string;
-
-    if (!expenseId) {
-      return NextResponse.json({ error: 'Expense ID missing' }, { status: 400 });
-    }
+    const { expenseId } = params;
 
     const { userId } = await auth();
     if (!userId) {
@@ -30,35 +24,19 @@ export async function POST(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const expense = await prisma.expense.findUnique({
-      where: { id: expenseId },
-      include: {
-        group: { include: { members: true } },
+    // ✅ Mark ONLY the current user's split as settled
+    await prisma.expenseSplit.updateMany({
+      where: {
+        expenseId,
+        userId: user.id,
+      },
+      data: {
+        settled: true,
       },
     });
 
-    if (!expense) {
-      return NextResponse.json({ error: 'Expense not found' }, { status: 404 });
-    }
-
-    const isMember = expense.group.members.some(
-      m => m.userId === user.id
-    );
-
-    if (!isMember) {
-      return NextResponse.json(
-        { error: 'Not allowed to settle this expense' },
-        { status: 403 }
-      );
-    }
-
-    await prisma.expense.update({
-      where: { id: expenseId },
-      data: { settled: true },
-    });
-
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error settling expense:', error);
     return NextResponse.json(
       { error: 'Failed to settle expense' },
