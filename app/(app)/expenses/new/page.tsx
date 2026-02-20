@@ -73,12 +73,18 @@ export default function AddExpensePage() {
         }),
       });
 
-      const data = await response.json();
+      let data: any = null;
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create expense');
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
       }
-
+      
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to create expense');
+      }
+      
       // Success! Redirect to expenses page
       router.push('/expenses');
     } catch (err: any) {
