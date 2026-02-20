@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 
 export async function POST(
   _req: Request,
-  { params }: { params: { expenseId: string } }
+  context: { params: Promise<{ expenseId: string }> }
 ) {
   try {
-    const { expenseId } = params;
+    const { expenseId } = await context.params;
 
     const { userId } = await auth();
     if (!userId) {
@@ -24,7 +24,7 @@ export async function POST(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // ✅ Mark ONLY the current user's split as settled
+    // ✅ Settle ONLY this user's split
     await prisma.expenseSplit.updateMany({
       where: {
         expenseId,
@@ -44,6 +44,7 @@ export async function POST(
     );
   }
 }
+
 
 
 
