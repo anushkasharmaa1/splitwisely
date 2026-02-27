@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 interface Friend {
   id: string;
@@ -13,16 +12,27 @@ interface Friend {
 }
 
 export default function FriendsPage() {
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  // Empty friends array - will be populated from your backend
-  const friends: Friend[] = [];
+  useEffect(() => {
+    fetch('/api/friends')
+      .then(res => res.json())
+      .then(data => setFriends(data.friends || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   const filteredFriends = friends.filter(
     (friend) =>
       friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       friend.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) {
+    return <div className="text-center py-12 text-gray-400">Loading...</div>;
+  }
 
   return (
     <>
@@ -55,10 +65,6 @@ export default function FriendsPage() {
             />
           </svg>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition">
-          <span className="text-lg">＋</span>
-          Add Friend
-        </button>
       </div>
 
       {/* Friends List */}
@@ -71,9 +77,7 @@ export default function FriendsPage() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div
-                    className={`w-14 h-14 ${friend.avatar} rounded-full flex items-center justify-center text-xl font-bold text-white`}
-                  >
+                  <div className="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center text-xl font-bold text-white">
                     {friend.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
@@ -121,14 +125,8 @@ export default function FriendsPage() {
             </svg>
             <p className="text-gray-400 text-lg mb-2">No friends yet</p>
             <p className="text-gray-500 text-sm mb-6">
-              Add friends to start splitting expenses and tracking who owes what
+              Add friends to groups to start splitting expenses
             </p>
-            <button className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add Your First Friend
-            </button>
           </div>
         ) : (
           <div className="bg-[#1a2738] rounded-xl p-12 border border-gray-800 text-center">

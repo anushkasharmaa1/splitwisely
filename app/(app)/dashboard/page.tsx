@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 interface Activity {
@@ -13,17 +14,37 @@ interface Activity {
   date: string;
 }
 
-export default function DashboardPage() {
-  // Sample data - replace with your actual data from API/database
-  const totalBalance = 0;
-  const youOwe = 0;
-  const youAreOwed = 0;
-  const owedToPeople = 0;
-  const owedFromPeople = 0;
+interface DashboardData {
+  totalBalance: number;
+  youOwe: number;
+  youAreOwed: number;
+  owedToPeople: number;
+  owedFromPeople: number;
+  recentActivity: Activity[];
+}
 
-  const recentActivities: Activity[] = [
-    // Empty by default - will be populated from your backend
-  ];
+export default function DashboardPage() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/dashboard')
+      .then(res => res.json())
+      .then(setData)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-12 text-gray-400">Loading...</div>;
+  }
+
+  const totalBalance = data?.totalBalance || 0;
+  const youOwe = data?.youOwe || 0;
+  const youAreOwed = data?.youAreOwed || 0;
+  const owedToPeople = data?.owedToPeople || 0;
+  const owedFromPeople = data?.owedFromPeople || 0;
+  const recentActivities = data?.recentActivity || [];
 
   return (
     <>
@@ -34,24 +55,21 @@ export default function DashboardPage() {
 
       {/* Balance Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Total Balance */}
         <div className="bg-[#1a2738] rounded-xl p-6 border border-gray-800">
           <div className="text-sm text-gray-400 mb-2">Total Balance</div>
-          <div className="text-3xl font-bold mb-1">₹{totalBalance.toLocaleString()}</div>
+          <div className="text-3xl font-bold mb-1">₹{totalBalance.toFixed(2)}</div>
           <div className="text-xs text-gray-500">Across all groups</div>
         </div>
 
-        {/* You Owe */}
         <div className="bg-[#1a2738] rounded-xl p-6 border border-gray-800">
           <div className="text-sm text-gray-400 mb-2">You Owe</div>
-          <div className="text-3xl font-bold mb-1 text-red-400">₹{youOwe.toLocaleString()}</div>
+          <div className="text-3xl font-bold mb-1 text-red-400">₹{youOwe.toFixed(2)}</div>
           <div className="text-xs text-gray-500">To {owedToPeople} people</div>
         </div>
 
-        {/* You Are Owed */}
         <div className="bg-[#1a2738] rounded-xl p-6 border border-gray-800">
           <div className="text-sm text-gray-400 mb-2">You Are Owed</div>
-          <div className="text-3xl font-bold mb-1 text-green-400">₹{youAreOwed.toLocaleString()}</div>
+          <div className="text-3xl font-bold mb-1 text-green-400">₹{youAreOwed.toFixed(2)}</div>
           <div className="text-xs text-gray-500">From {owedFromPeople} people</div>
         </div>
       </div>
@@ -79,7 +97,7 @@ export default function DashboardPage() {
                         activity.type === 'owe' ? 'text-red-400' : 'text-green-400'
                       }`}
                     >
-                      {activity.type === 'owe' ? '-' : '+'} ₹{activity.amount.toLocaleString()}
+                      {activity.type === 'owe' ? '-' : '+'} ₹{activity.amount.toFixed(2)}
                     </div>
                   </div>
                 </div>

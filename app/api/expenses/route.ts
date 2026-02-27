@@ -38,12 +38,57 @@ export async function GET() {
       include: {
         paidBy: true,
         group: true,
-        splits: true,
+        splits: {
+          include: {
+            user: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json({ expenses });
+    // ✅ Calculate user-specific amounts for each expense
+    const expensesWithUserData = expenses.map(expense => {
+      const userSplit = expense.splits.find(s => s.userId === user.id);
+      const userShare = userSplit?.amount || 0;
+      const settled = userSplit?.settled || false;
+
+      let userOwes = 0;
+      let userLent = 0;
+
+      if (expense.paidById === user.id) {
+        // User paid - calculate how much others owe them
+        userLent = expense.splits
+          .filter(s => s.userId !== user.id && !s.settled)
+          .reduce((sum, s) => sum + s.amount, 0);
+      } else if (userSplit && !userSplit.settled) {
+        // Someone else paid - user owes them
+        userOwes = userShare;
+      }
+
+      return {
+        id: expense.id,
+        description: expense.description,
+        amount: expense.amount,
+        category: expense.category,
+        createdAt: expense.createdAt,
+        paidBy: {
+          id: expense.paidBy.id,
+          name: expense.paidBy.name,
+          email: expense.paidBy.email,
+        },
+        group: {
+          id: expense.group.id,
+          name: expense.group.name,
+        },
+        userShare,
+        userOwes,
+        userLent,
+        settled,
+      };
+    });
+
+    return NextResponse.json({ expenses: expensesWithUserData });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
