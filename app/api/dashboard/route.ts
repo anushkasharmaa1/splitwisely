@@ -8,6 +8,16 @@ const prisma = globalForPrisma.prisma ?? new PrismaClient();
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
+interface ActivityItem {
+  id: string;
+  title: string;
+  paidBy: string;
+  category: string;
+  group: string;
+  amount: number;
+  type: string;
+  date: string;
+}
 
 export async function GET() {
   try {
@@ -49,7 +59,7 @@ export async function GET() {
     let youAreOwed = 0;
     const peopleYouOwe = new Set<string>();
     const peopleWhoOweYou = new Set<string>();
-    const recentActivity = [];
+   const recentActivity: ActivityItem[] = [];
 
     expenses.forEach(expense => {
       const userSplit = expense.splits.find(s => s.userId === user.id);
