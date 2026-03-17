@@ -57,5 +57,5 @@ It helps users manage shared expenses within groups, automatically calculate bal
 
 ### Clone repository
 ```bash
-git clone https://github.com/your-username/splitwisely.git
+git clone https://github.com/anushkasharmaa1/splitwisely.git
 cd splitwisely
