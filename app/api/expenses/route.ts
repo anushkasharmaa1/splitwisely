@@ -117,7 +117,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { description, amount, category, groupId } = body;
+    const { description, amount, category, groupId, paidById } = body;
 
     if (!description || !amount || !groupId) {
       return NextResponse.json(
@@ -140,24 +140,25 @@ export async function POST(req: Request) {
 
     const splitAmount = amount / group.members.length;
 
+const actualPaidById = paidById || user.id;
+
     const expense = await prisma.expense.create({
       data: {
         description,
         amount,
         category,
         groupId,
-        paidById: user.id,
+        paidById: actualPaidById,
         splits: {
           create: group.members.map(m => ({
             userId: m.userId,
             amount: splitAmount,
-            settled: m.userId === user.id,
+            settled: m.userId === actualPaidById,
           })),
         },
       },
     });
 
-    // 🔴 THIS RESPONSE WAS MISSING EARLIER
     return NextResponse.json({
       success: true,
       expense,
