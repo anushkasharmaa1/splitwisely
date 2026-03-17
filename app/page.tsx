@@ -6,36 +6,49 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#0a1628] text-white">
       {/* Navigation */}
       <nav className="border-b border-gray-800/50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M21 18v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1m18 0a2 2 0 00-2-2h-1V8a2 2 0 00-2-2h-3V4a2 2 0 00-2-2H9a2 2 0 00-2 2v2H4a2 2 0 00-2 2v8H1a2 2 0 00-2 2" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold">Splitwisely</span>
-            </div>
-
-            {/* Nav Links */}
-            <div className="flex items-center gap-8">
-              <a href="#features" className="text-gray-300 hover:text-white transition">
-                Features
-              </a>
-              <Link href="/dashboard" className="text-gray-300 hover:text-white transition">
-                Login
-              </Link>
-              <Link
-                href="/groups/new"
-                className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
+  <div className="max-w-7xl mx-auto px-6 py-4">
+    <div className="flex items-center justify-between">
+      {/* Logo */}
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 18v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1m18 0a2 2 0 00-2-2h-1V8a2 2 0 00-2-2h-3V4a2 2 0 00-2-2H9a2 2 0 00-2 2v2H4a2 2 0 00-2 2v8H1a2 2 0 00-2 2" />
+          </svg>
         </div>
-      </nav>
+        <span className="text-xl font-bold">Splitwisely</span>
+      </div>
+
+      {/* Nav Links - hidden on mobile */}
+      <div className="hidden md:flex items-center gap-8">
+        <a href="#features" className="text-gray-300 hover:text-white transition">
+          Features
+        </a>
+        <Link href="/dashboard" className="text-gray-300 hover:text-white transition">
+          Login
+        </Link>
+        <Link
+          href="/groups/new"
+          className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition"
+        >
+          Get Started
+        </Link>
+      </div>
+
+      {/* Mobile nav */}
+      <div className="flex md:hidden items-center gap-3">
+        <Link href="/dashboard" className="text-gray-300 hover:text-white transition text-sm">
+          Login
+        </Link>
+        <Link
+          href="/groups/new"
+          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition text-sm"
+        >
+          Get Started
+        </Link>
+      </div>
+    </div>
+  </div>
+</nav>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
@@ -48,24 +61,25 @@ export default function LandingPage() {
                   Modern Group Splitting
                 </span>
               </div>
-              <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                Split expenses
-                <br />
-                without the <span className="text-blue-500">stress</span>
-              </h1>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+  Split expenses
+  <br />
+  without the <span className="text-blue-500">stress</span>
+</h1>
               <p className="text-lg text-gray-400 mb-8 max-w-lg leading-relaxed">
                 The easiest way to share bills with friends and roommates. Track balances, settle up, and keep
                 your relationships drama-free.
               </p>
-              <div className="flex items-center gap-4 mb-8">
-                <Link
-                  href="/groups/new"
-                  className="px-8 py-4 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition"
-                >
-                  Get Started for Free
-                </Link>
-              </div>
-            </div>
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+  {/* Left Content - stays */}
+  <div>
+    ...
+  </div>
+  {/* Right Illustration - hide on mobile */}
+  <div className="relative hidden lg:block">
+    ...
+  </div>
+</div>
 
             {/* Right Illustration */}
             <div className="relative">
