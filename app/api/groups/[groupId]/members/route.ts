@@ -81,6 +81,30 @@ export async function POST(
         user: true, // FIXED: include user details in response
       },
     });
+    // Auto-add as friends (both directions)
+await prisma.friendship.upsert({
+  where: { userId_friendId: { userId: currentUser.id, friendId: userToAdd.id } },
+  create: { userId: currentUser.id, friendId: userToAdd.id },
+  update: {},
+});
+await prisma.friendship.upsert({
+  where: { userId_friendId: { userId: userToAdd.id, friendId: currentUser.id } },
+  create: { userId: userToAdd.id, friendId: currentUser.id },
+  update: {},
+});
+    // Auto-add as friends (both directions), ignore if already friends
+const friendshipData = [
+  { userId: currentUser.id, friendId: userToAdd.id },
+  { userId: userToAdd.id,   friendId: currentUser.id },
+];
+
+for (const f of friendshipData) {
+  await prisma.friendship.upsert({
+    where: { userId_friendId: { userId: f.userId, friendId: f.friendId } },
+    create: f,
+    update: {}, // do nothing if already exists
+  });
+}
 
     return NextResponse.json({ 
       success: true, 

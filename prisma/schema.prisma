@@ -23,6 +23,8 @@ model User {
   paidExpenses  Expense[]     @relation("PaidBy")
   settlements   Settlement[]  @relation("SettlementsFrom")
   receivedSettlements Settlement[] @relation("SettlementsTo")
+  friends         Friendship[]  @relation("UserFriends")
+friendOf        Friendship[]  @relation("FriendOf")
   
   @@map("users")
 }
@@ -107,4 +109,16 @@ model Settlement {
   toUser     User     @relation("SettlementsTo", fields: [toUserId], references: [id])
   
   @@map("settlements")
+}
+model Friendship {
+  id        String   @id @default(cuid())
+  userId    String
+  friendId  String
+  createdAt DateTime @default(now())
+
+  user      User     @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
+  friend    User     @relation("FriendOf", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+  @@map("friendships")
 }
