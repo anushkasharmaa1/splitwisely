@@ -118,3 +118,48 @@ export async function GET(
     );
   }
 }
+// DELETE /api/groups/[groupId]
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ groupId: string }> }
+) {
+  try {
+    const { groupId } = await params;
+
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const currentUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Only admin can delete group
+    const membership = await prisma.groupMember.findFirst({
+      where: { groupId, userId: currentUser.id, role: 'admin' },
+    });
+
+    if (!membership) {
+      return NextResponse.json(
+        { error: 'Only admins can delete this group' },
+        { status: 403 }
+      );
+    }
+
+    // Delete group (cascades to members, expenses, splits)
+    await prisma.group.delete({ where: { id: groupId } });
+
+    return NextResponse.json({ success: true, message: 'Group deleted' });
+  } catch (error: any) {
+    console.error('Error deleting group:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to delete group' },
+      { status: 500 }
+    );
+  }
+}

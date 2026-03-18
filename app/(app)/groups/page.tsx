@@ -15,6 +15,7 @@ export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchGroups();
@@ -25,7 +26,6 @@ export default function GroupsPage() {
       setLoading(true);
       const response = await fetch('/api/groups');
       const data = await response.json();
-
       if (response.ok) {
         setGroups(data.groups || []);
       } else {
@@ -38,12 +38,29 @@ export default function GroupsPage() {
     }
   };
 
+  const handleDelete = async (groupId: string, groupName: string) => {
+    if (!confirm(`Are you sure you want to delete "${groupName}"? This will delete all expenses and data in this group.`)) return;
+
+    setDeletingId(groupId);
+    try {
+      const res = await fetch(`/api/groups/${groupId}`, { method: 'DELETE' });
+      const data = await res.json();
+
+      if (res.ok) {
+        setGroups(prev => prev.filter(g => g.id !== groupId));
+      } else {
+        alert(data.error || 'Failed to delete group');
+      }
+    } catch (err) {
+      alert('Failed to delete group');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const getGroupIcon = (type: string) => {
     const icons: Record<string, string> = {
-      Trip: '✈️',
-      Home: '🏠',
-      Food: '🍽️',
-      Other: '•••',
+      Trip: '✈️', Home: '🏠', Food: '🍽️', Other: '•••',
     };
     return icons[type] || '•••';
   };
@@ -73,10 +90,7 @@ export default function GroupsPage() {
     return (
       <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-6 text-center">
         <p className="text-red-400 mb-4">{error}</p>
-        <button
-          onClick={fetchGroups}
-          className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition"
-        >
+        <button onClick={fetchGroups} className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition">
           Try Again
         </button>
       </div>
@@ -99,7 +113,6 @@ export default function GroupsPage() {
         </Link>
       </div>
 
-      {/* Groups List */}
       <div className="space-y-4">
         {groups.length > 0 ? (
           groups.map((group) => (
@@ -109,11 +122,7 @@ export default function GroupsPage() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 flex-1">
-                  <div
-                    className={`w-16 h-16 ${getGroupColor(
-                      group.type
-                    )} rounded-xl flex items-center justify-center text-3xl`}
-                  >
+                  <div className={`w-16 h-16 ${getGroupColor(group.type)} rounded-xl flex items-center justify-center text-3xl`}>
                     {getGroupIcon(group.type)}
                   </div>
                   <div className="flex-1">
@@ -124,29 +133,28 @@ export default function GroupsPage() {
                     </p>
                   </div>
                 </div>
-                <Link
-                  href={`/groups/${group.id}/members`}
-                  className="px-4 py-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded-lg transition text-sm font-medium"
-                >
-                  Manage Members →
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/groups/${group.id}/members`}
+                    className="px-4 py-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded-lg transition text-sm font-medium"
+                  >
+                    Manage Members →
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(group.id, group.name)}
+                    disabled={deletingId === group.id}
+                    className="px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg transition text-sm font-medium disabled:opacity-50"
+                  >
+                    {deletingId === group.id ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
               </div>
             </div>
           ))
         ) : (
           <div className="bg-[#1a2738] rounded-xl p-16 border border-gray-800 text-center">
-            <svg
-              className="w-20 h-20 mx-auto text-gray-600 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
+            <svg className="w-20 h-20 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             <p className="text-gray-400 text-lg mb-2">No groups yet</p>
             <p className="text-gray-500 text-sm mb-6">
