@@ -47,8 +47,15 @@ export async function GET() {
     }
 
     // Create user in database
-    user = await prisma.user.create({
-      data: {
+    // Upsert — update if email exists, create if not
+    user = await prisma.user.upsert({
+      where: { email: clerkUser.emailAddresses[0].emailAddress },
+      update: {
+        clerkId: userId,
+        name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || null,
+        imageUrl: clerkUser.imageUrl || null,
+      },
+      create: {
         clerkId: userId,
         email: clerkUser.emailAddresses[0].emailAddress,
         name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || null,
