@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import AppSidebar from '@/components/AppSidebar';
 import AppTopbar from '@/components/AppTopbar';
 
@@ -8,6 +9,10 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    fetch('/api/sync-user').catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0b1220] text-white flex">
       {/* Sidebar - hidden on mobile */}
