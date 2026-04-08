@@ -1,18 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function AppSidebar() {
+export default function AppSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    const handler = () => setIsOpen(prev => !prev);
-    window.addEventListener('toggleSidebar', handler);
-    return () => window.removeEventListener('toggleSidebar', handler);
-  }, []);
 
   return (
     <>
@@ -47,7 +39,7 @@ export default function AppSidebar() {
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-40 md:hidden"
-          onClick={() => setIsOpen(false)}
+          onClick={onClose}
         />
       )}
 
@@ -58,7 +50,7 @@ export default function AppSidebar() {
         }`}
       >
         <div className="px-6 py-6 flex items-center justify-between border-b border-gray-800">
-          <Link href="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-2">
+          <Link href="/dashboard" onClick={onClose} className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M21 18v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1m18 0a2 2 0 00-2-2h-1V8a2 2 0 00-2-2h-3V4a2 2 0 00-2-2H9a2 2 0 00-2 2v2H4a2 2 0 00-2 2v8H1a2 2 0 00-2 2" />
@@ -66,19 +58,19 @@ export default function AppSidebar() {
             </div>
             <span className="text-xl font-bold text-white">Splitwisely</span>
           </Link>
-          <button onClick={() => setIsOpen(false)} className="p-2 rounded-lg hover:bg-gray-800 text-gray-400">
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-800 text-gray-400 text-xl">
             ✕
           </button>
         </div>
         <nav className="flex-1 px-4 py-4 space-y-1">
-          <DrawerLink href="/dashboard" label="Dashboard" active={pathname === '/dashboard'} onClick={() => setIsOpen(false)} />
-          <DrawerLink href="/activity" label="Recent Activity" active={pathname === '/activity'} onClick={() => setIsOpen(false)} />
-          <DrawerLink href="/expenses" label="All Expenses" active={pathname === '/expenses'} onClick={() => setIsOpen(false)} />
-          <DrawerLink href="/groups" label="Groups" active={pathname === '/groups'} onClick={() => setIsOpen(false)} />
-          <DrawerLink href="/friends" label="Friends" active={pathname === '/friends'} onClick={() => setIsOpen(false)} />
+          <DrawerLink href="/dashboard" label="Dashboard" active={pathname === '/dashboard'} onClick={onClose} />
+          <DrawerLink href="/activity" label="Recent Activity" active={pathname === '/activity'} onClick={onClose} />
+          <DrawerLink href="/expenses" label="All Expenses" active={pathname === '/expenses'} onClick={onClose} />
+          <DrawerLink href="/groups" label="Groups" active={pathname === '/groups'} onClick={onClose} />
+          <DrawerLink href="/friends" label="Friends" active={pathname === '/friends'} onClick={onClose} />
         </nav>
         <div className="px-4 py-6 border-t border-gray-800">
-          <Link href="/expenses/new" onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition text-white">
+          <Link href="/expenses/new" onClick={onClose} className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold transition text-white">
             <span className="text-lg">＋</span>
             Add Expense
           </Link>
