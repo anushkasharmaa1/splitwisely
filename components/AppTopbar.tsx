@@ -8,16 +8,20 @@ export default function AppTopbar() {
   const pathname = usePathname();
 
   return (
-    <header className="h-16 bg-[#0d1221] border-b border-gray-800 flex items-center px-4 md:px-6">
-      {/* Mobile: spacer for hamburger button */}
-      <div className="flex md:hidden items-center gap-2 mr-10">
-        <div className="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center">
-          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M21 18v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1m18 0a2 2 0 00-2-2h-1V8a2 2 0 00-2-2h-3V4a2 2 0 00-2-2H9a2 2 0 00-2 2v2H4a2 2 0 00-2 2v8H1a2 2 0 00-2 2" />
-          </svg>
-        </div>
-        <span className="text-sm font-bold text-white">Splitwisely</span>
-      </div>
+    <header className="h-16 bg-[#0d1221] border-b border-gray-800 flex items-center px-4 md:px-6 gap-3">
+      
+      {/* Mobile: Hamburger - triggers sidebar open */}
+      <button
+        className="md:hidden p-2 rounded-lg hover:bg-[#1a2332] transition"
+        onClick={() => {
+          const event = new CustomEvent('toggleSidebar');
+          window.dispatchEvent(event);
+        }}
+      >
+        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
 
       {/* Search */}
       <div className="flex-1 max-w-md">
@@ -27,12 +31,7 @@ export default function AppTopbar() {
             placeholder="Search expenses..."
             className="w-full bg-[#1a2332] text-sm text-gray-300 placeholder-gray-500 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <svg
-            className="absolute left-3 top-2.5 w-4 h-4 text-gray-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
@@ -82,10 +81,7 @@ export default function AppTopbar() {
 
 function TopbarLink({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
-    <Link
-      href={href}
-      className={`text-sm transition ${active ? 'text-white font-medium' : 'text-gray-400 hover:text-white'}`}
-    >
+    <Link href={href} className={`text-sm transition ${active ? 'text-white font-medium' : 'text-gray-400 hover:text-white'}`}>
       {label}
     </Link>
   );

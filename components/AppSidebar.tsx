@@ -1,12 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+    const handler = () => setIsOpen(true);
+    window.addEventListener('toggleSidebar', handler);
+    return () => window.removeEventListener('toggleSidebar', handler);
+  }, []);
+
 
   return (
     <>
