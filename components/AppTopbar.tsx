@@ -9,8 +9,8 @@ export default function AppTopbar() {
 
   return (
     <header className="h-16 bg-[#0d1221] border-b border-gray-800 flex items-center px-4 md:px-6">
-      {/* Mobile: Logo + Title */}
-      <div className="flex md:hidden items-center gap-2 mr-3">
+      {/* Mobile: spacer for hamburger button */}
+      <div className="flex md:hidden items-center gap-2 mr-10">
         <div className="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center">
           <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
             <path d="M21 18v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1m18 0a2 2 0 00-2-2h-1V8a2 2 0 00-2-2h-3V4a2 2 0 00-2-2H9a2 2 0 00-2 2v2H4a2 2 0 00-2 2v8H1a2 2 0 00-2 2" />
