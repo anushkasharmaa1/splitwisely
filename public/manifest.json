@@ -3,7 +3,7 @@
   "short_name": "Splitwisely",
   "description": "Split expenses with friends without the stress",
   "start_url": "/dashboard",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#0a1628",
   "theme_color": "#3b82f6",
   "orientation": "portrait",
