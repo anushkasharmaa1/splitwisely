@@ -44,7 +44,7 @@ export default function AppSidebar() {
       </aside>
 
       {/* Mobile Bottom Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#0d1221] border-t border-gray-800 flex items-center justify-around px-2 py-2 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#0d1221] border-t border-gray-800 flex items-center justify-around px-2 py-2 pb-8 md:hidden">
         <MobileNavLink href="/dashboard" label="Home" active={pathname === '/dashboard'}>
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
